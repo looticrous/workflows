@@ -1,0 +1,26 @@
+name: looticrous.composer 
+run-name: ${{ github.event.head_commit.message || format('Manual run - {0} - {1}', github.actor, github.run_number) }}
+
+on: 
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+    paths:
+      - 'composer.yml'
+      - '.github/workflows/composer.yml'
+      - 'src/**'
+      - 'tests/**'
+      - 'composer.json'
+      - 'composer.lock'
+
+jobs: 
+  hello: 
+    runs-on: ubuntu-latest
+    steps: 
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Hello World 
+        shell: pwsh
+        run: Write-Host "Hello, world!"
