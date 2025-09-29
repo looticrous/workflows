@@ -6,8 +6,7 @@ param (
   [string]$target_environments
 )
 
-$in = $param1 | ConvertFrom-Json
-if ($in.event_name -eq 'workflow_dispatch') {
+if ($event_name -eq 'workflow_dispatch') {
   $environments = $target_environments.Split(",") | ForEach-Object { $_.Trim() }
 }
 else {
