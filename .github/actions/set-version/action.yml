@@ -1,0 +1,36 @@
+name: Set Version
+description: "Set version based on event context"
+inputs: 
+  event_name: 
+    description: "The name of the event that triggered the workflow"
+    required: true
+  deployment_tag:
+    description: "The deployment tag input (if any)"
+    required: false
+    default: ""
+  ref_name:
+    description: "The git ref name (branch or tag)"
+    required: true
+  run_number:
+    description: "The GitHub Actions run number"
+    required: true
+outputs:
+  version:
+    description: "The determined version string"
+    value: ${{ steps.set_version.outputs.version }}
+runs:
+  using: "composite"
+  steps:
+    - name: Set Version 
+      id: set_version 
+      shell: pwsh 
+      run: | 
+        $in = @{
+          event_name = "${{ inputs.event_name }}"
+          deployment_tag = "${{ inputs.deployment_tag }}"
+          ref_name = "${{ inputs.ref_name }}"
+          run_number = "${{ inputs.run_number }}"
+        } | ConvertTo-Json -Compress 
+        $out = .github/actions/scripts/set-version.ps1 -param1 $in
+        Write-Host "Version determined: $out"
+        "version=$out" | Out-File -FilePath $env:GITHUB_OUTPUT -Encoding utf8 -Append

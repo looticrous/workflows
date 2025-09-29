@@ -1,0 +1,8 @@
+{
+  "installation": {
+    "version": "21.6.1",
+    "plugins": {
+      "@nx/react": "21.6.1"
+    }
+  }
+}
