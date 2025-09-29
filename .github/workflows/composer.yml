@@ -47,7 +47,7 @@ jobs:
       - name: Print Version
         shell: pwsh
         run: |
-          write-host "Version: ${{ steps.set_version.outputs.version.version }}"
+          write-host "Version: ${{ steps.set_version.outputs.version }}"
 
       - name: Set Target Environments
         id: set_environments
