@@ -7,7 +7,7 @@ param (
 )
 
 if ($event_name -eq 'workflow_dispatch') {
-  $environments = $target_environments.Split(",") | ForEach-Object { $_.Trim() }
+  $environments = $target_environments | split ','| join ',' 
 }
 else {
   $environments = @("Development", "QA", "UAT") 

@@ -50,17 +50,17 @@ jobs:
         run: |
           write-host "Version: ${{ steps.set_version.outputs.version }}"
 
-      - name: Print Target Environments
-        id: print_environments
+      - name: Set Target Environments
+        id: set_environments
         uses: ./.github/actions/set-target-environment
         with:
           event_name: ${{ github.event_name }}
           target_environments: ${{ github.event.inputs.target_environments }}
       
-      - name: Print Target Environments Step
+      - name: Print Target Environments
         shell: pwsh
         run: |
-          write-host "Target Environments: ${{ steps.print_environments.outputs.target_environments }}"
+          write-host "Target Environments: ${{ steps.set_environments.outputs.target_environments }}"
 
 
 
