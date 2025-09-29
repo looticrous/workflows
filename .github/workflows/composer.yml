@@ -36,13 +36,14 @@ jobs:
         id: set_version 
         shell: pwsh 
         run: | 
-          $out = .github/workflows/scripts/set-version.ps1 -param1 @{ 
-            'github_event_name' = '${{ github.event_name }}' 
-            'github_event_inputs_deployment_tag' = '${{ github.event.inputs.deployment_tag }}' 
-            'github_ref_name' = '${{ github.ref_name }}' 
-            'github_run_number' = '${{ github.run_number }}' 
-          } | convertto-json -Compress
-          echo "Version determined: $out"
+          $in = @{
+            github_event_name = "${{ github.event_name }}"
+            github_event_inputs_deployment_tag = "${{ github.event.inputs.deployment_tag }}"
+            github_ref_name = "${{ github.ref_name }}"
+            github_run_number = "${{ github.run_number }}"
+          } | ConvertTo-Json -Compressed
+          $out = .github/workflows/scripts/set-version.ps1 -param1 $in
+          Write-Host "Version determined: $out"
           "version=$out" | Out-File -FilePath $env:GITHUB_OUTPUT -Encoding utf8 -Append
 
   wip_output_job:
