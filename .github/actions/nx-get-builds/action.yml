@@ -25,6 +25,7 @@ runs:
       with:
         node-version: ${{ inputs.node_version }}
     - name: Install Dependencies
+      shell: pwsh 
       run: npm ci 
     - name: Get Builds
       id: get_builds
