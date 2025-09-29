@@ -72,17 +72,13 @@ $deserialized = $param1 | ConvertFrom-Json
 if ($deserialized.event_name -eq 'workflow_dispatch' -and -not [string]::IsNullOrEmpty($deserialized.deployment_tag)) {
   # Strategy 1: Manual deployment with user-specified version tag
   # Use the exact version provided by the user (e.g., "v2025.09.123")
-  $version = @{
-    version = $deserialized.deployment_tag
-  }
+  $version = $deserialized.deployment_tag
 }
 elseif ($deserialized.ref_name -eq 'main') {
   # Strategy 2: Main branch auto-versioning
   # Generate date-based version: YYYY.MM.run_number (e.g., "2025.09.456")
   $date = Get-Date
-  $version = @{
-    version = "{0}.{1}" -f $date.ToString("yyyy.MM"), $deserialized.run_number
-  }
+  $version = "{0}.{1}" -f $date.ToString("yyyy.MM"), $deserialized.run_number
 }
 else {
   # Strategy 3: Feature/development branch versioning
@@ -97,10 +93,8 @@ else {
   }
   
   # Generate version like "1.0.123-feature-user-auth"
-  $version = @{
-    version = "1.0.{0}-{1}" -f $deserialized.run_number, $branchSafe
-  }
+  $version = "1.0.{0}-{1}" -f $deserialized.run_number, $branchSafe
 }
 
 # Output the version as JSON for consumption by GitHub Actions workflow
-Write-Output $version | ConvertTo-Json -Compress
+Write-Output $version
