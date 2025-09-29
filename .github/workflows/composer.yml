@@ -1,26 +1,53 @@
-name: looticrous.composer 
-run-name: ${{ github.event.head_commit.message || format('Manual run - {0} - {1}', github.actor, github.run_number) }}
-
-on: 
+name: conductor 
+on:
   workflow_dispatch:
   push:
     branches:
       - main
-    paths:
-      - 'composer.yml'
-      - '.github/workflows/composer.yml'
-      - 'src/**'
-      - 'tests/**'
-      - 'composer.json'
-      - 'composer.lock'
-
+permissions: 
+  contents: read
 jobs: 
-  hello: 
+  wip:
     runs-on: ubuntu-latest
-    steps: 
-      - name: Checkout repository
+    outputs: 
+      wip_output: ${{ steps.wip.outputs.wip_output }}
+    steps:
+      - name: Checkout
         uses: actions/checkout@v3
-
-      - name: Hello World 
+      - name: Run WIP script Steps 
+        id: wip
         shell: pwsh
-        run: Write-Host "Hello, world!"
+        run: |
+          $out = .github/workflows/scripts/wip.ps1 -serialized_parameter1 '{"param1":"conductorjob1","param2":"conductorjob2","param3":"false"}'
+          $out = $out.Trim()
+          "wip_output=$out" | Out-File -FilePath $env:GITHUB_OUTPUT -Append
+      - name: Wip Output Step
+        shell: pwsh
+        run: |
+          write-host "WIP output: ${{ steps.wip.outputs.wip_output }}"
+
+  wip_output_job:
+    runs-on: ubuntu-latest
+    needs: wip
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      - name: Print WIP Output
+        shell: pwsh
+        run: |
+          write-host "WIP output from previous job: ${{ needs.wip.outputs.wip_output }}"
+
+
+  wip_input_reusable_job:
+    uses: ./.github/workflows/orchestra1.yml
+
+  wip_output_reusable_job:
+    runs-on: ubuntu-latest
+    needs: wip_input_reusable_job
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      - name: Print WIP Output from Reusable Job
+        shell: pwsh
+        run: |
+          write-host "WIP output from reusable job: ${{ needs.wip_input_reusable_job.outputs.reusable_output }}"
