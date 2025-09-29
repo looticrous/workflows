@@ -11,38 +11,35 @@
     2. Main branch with date-based versioning (YYYY.MM.run_number)
     3. Feature/development branches with semantic versioning (1.0.run_number-branch_name)
 
-.PARAMETER param1
-    A JSON string containing GitHub Actions context information with the following structure:
-    {
-        "event_name": "workflow_dispatch|push",
-        "deployment_tag": "optional custom version",
-        "ref_name": "branch name",
-        "run_number": "workflow run number"
-    }
+.PARAMETER event_name
+    The name of the GitHub event that triggered the workflow (e.g., "push", "workflow_dispatch").
+.PARAMETER deployment_tag
+    The user-specified deployment tag for manual deployments (if any).
+.PARAMETER ref_name
+    The Git reference name (branch or tag) that triggered the workflow.
+.PARAMETER run_number
+    The GitHub Actions run number for the current workflow run.
 
 .OUTPUTS
-    JSON object containing the generated version:
-    {
-        "version": "generated version string"
-    }
+    Writes the generated version to GitHub Actions output and displays it to the host.
 
 .EXAMPLE
     # Manual deployment with custom version
-    $context = '{"event_name":"workflow_dispatch","deployment_tag":"v2025.09.123","ref_name":"main","run_number":"456"}'
-    .\set-container-version.ps1 -param1 $context
-    # Returns: {"version": "v2025.09.123"}
+    .\set-version.ps1 -event_name "workflow_dispatch" -deployment_tag "v2025.09.123" -ref_name "main" -run_number "456"
+    # Output: Determined version: v2025.09.123
+    # Sets GitHub Actions output: version=v2025.09.123
 
 .EXAMPLE
     # Main branch auto-versioning
-    $context = '{"event_name":"push","deployment_tag":"","ref_name":"main","run_number":"789"}'
-    .\set-container-version.ps1 -param1 $context
-    # Returns: {"version": "2025.09.789"}
+    .\set-version.ps1 -event_name "push" -deployment_tag "" -ref_name "main" -run_number "789"
+    # Output: Determined version: 2025.09.789
+    # Sets GitHub Actions output: version=2025.09.789
 
 .EXAMPLE
     # Feature branch versioning
-    $context = '{"event_name":"push","deployment_tag":"","ref_name":"feature/user-auth","run_number":"101"}'
-    .\set-container-version.ps1 -param1 $context
-    # Returns: {"version": "1.0.101-feature-user-auth"}
+    .\set-version.ps1 -event_name "push" -deployment_tag "" -ref_name "feature/user-auth" -run_number "101"
+    # Output: Determined version: 1.0.101-feature-user-auth
+    # Sets GitHub Actions output: version=1.0.101-feature-user-auth
 
 .NOTES
     Author: Watco DevOps Team 
@@ -50,51 +47,47 @@
     Version: 1.0
 #>
 
-[cmdletbinding()]
-param (
+[CmdletBinding()]
+param(
   [Parameter(Mandatory = $true)]
-  [ValidateNotNullOrEmpty()]
-  [ValidateScript({
-      ($_ | ConvertFrom-Json) -ne $null -and 
-      ($_ | ConvertFrom-Json).PSObject.Properties.Name -contains 'event_name' -and 
-      ($_ | ConvertFrom-Json).PSObject.Properties.Name -contains 'deployment_tag' -and 
-      ($_ | ConvertFrom-Json).PSObject.Properties.Name -contains 'ref_name' -and 
-      ($_ | ConvertFrom-Json).PSObject.Properties.Name -contains 'run_number'
-    })]
-  [string]
-  $param1 
+  [string]$event_name, 
+  [Parameter(Mandatory = $false)]
+  [string]$deployment_tag, 
+  [Parameter(Mandatory = $true)]
+  [string]$ref_name,
+  [Parameter(Mandatory = $true)]
+  [string]$run_number
 )
 
-# Parse the JSON input parameter
-$deserialized = $param1 | ConvertFrom-Json
 
 # Determine versioning strategy based on workflow context
-if ($deserialized.event_name -eq 'workflow_dispatch' -and -not [string]::IsNullOrEmpty($deserialized.deployment_tag)) {
+if ($event_name -eq 'workflow_dispatch' -and -not [string]::IsNullOrEmpty($deployment_tag)) {
   # Strategy 1: Manual deployment with user-specified version tag
   # Use the exact version provided by the user (e.g., "v2025.09.123")
-  $version = $deserialized.deployment_tag
+  $version = $deployment_tag
 }
-elseif ($deserialized.ref_name -eq 'main') {
+elseif ($ref_name -eq 'main') {
   # Strategy 2: Main branch auto-versioning
   # Generate date-based version: YYYY.MM.run_number (e.g., "2025.09.456")
   $date = Get-Date
-  $version = "{0}.{1}" -f $date.ToString("yyyy.MM"), $deserialized.run_number
+  $version = "{0}.{1}" -f $date.ToString("yyyy.MM"), $run_number
 }
 else {
   # Strategy 3: Feature/development branch versioning
   # Create semantic pre-release version: 1.0.run_number-branch_name
   
   # Sanitize branch name: replace special characters with dashes
-  $branchSafe = ($deserialized.ref_name -replace '[^a-zA-Z0-9]', '-') 
-  
+  $branchSafe = ($ref_name -replace '[^a-zA-Z0-9]', '-') 
+
   # Limit branch name to 20 characters to avoid excessively long version strings
   if ($branchSafe.Length -gt 20) {
     $branchSafe = $branchSafe.Substring(0, 20)
   }
   
   # Generate version like "1.0.123-feature-user-auth"
-  $version = "1.0.{0}-{1}" -f $deserialized.run_number, $branchSafe
+  $version = "1.0.{0}-{1}" -f $run_number, $branchSafe
 }
 
-# Output the version as JSON for consumption by GitHub Actions workflow
-Write-Output $version
+# Output the version for GitHub Actions
+Write-Host "Determined version: $version"
+"version=$version" | Out-File -FilePath $env:GITHUB_OUTPUT -Encoding utf8 -Append

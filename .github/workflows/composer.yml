@@ -44,6 +44,7 @@ jobs:
           deployment_tag: ${{ github.event.inputs.deployment_tag }}
           ref_name: ${{ github.ref_name }}
           run_number: ${{ github.run_number }}
+
       - name: Print Version
         shell: pwsh
         run: |
