@@ -1,0 +1,35 @@
+name: Nx Get Builds 
+description: "Specify which projects need to be built or determine based on Nx affected command"
+inputs: 
+  projects:
+    description: "Comma-separated list of projects to check"
+    required: false 
+    default: ""
+  base_ref: 
+    description: "The base git reference (branch or commit) to compare against"
+    required: true
+    default: "main" 
+  node_version:
+    description: "The Node.js version to use"
+    required: false
+    default: "21"
+outputs:
+  builds:
+    description: "The list of projects that need to be built as a comma-separated string"
+    value: ${{ steps.get_builds.outputs.builds }}
+runs:
+  using: "composite"
+  steps:
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ inputs.node_version }}
+    - name: Install Dependencies
+      run: npm ci 
+    - name: Get Builds
+      id: get_builds
+      shell: pwsh
+      run: |
+        ./.github/actions/nx-get-builds/nx-get-builds.ps1 `
+          -projects "${{ inputs.projects }}" `
+          -base_ref "${{ inputs.base_ref }}"
