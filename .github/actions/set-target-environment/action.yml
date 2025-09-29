@@ -1,0 +1,24 @@
+name: Set Target Environments
+description: "Set target deployment environments based on event context"
+inputs: 
+  event_name: 
+    description: "The name of the event that triggered the workflow"
+    required: true
+  target_environments:
+    description: "The target environments input (if any)"
+    required: false
+    default: ""
+outputs:
+  target_environments:
+    description: "The determined target environments as a comma-separated string"
+    value: ${{ steps.set_environments.outputs.target_environments }}
+runs:
+  using: "composite"
+  steps:
+    - name: Set Target Environments
+      id: set_environments
+      shell: pwsh
+      run: |
+        ./.github/actions/set-target-environment/set-target-environments.ps1 `
+          -event_name "${{ inputs.event_name }}" `
+          -target_environments "${{ inputs.target_environments }}"
