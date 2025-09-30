@@ -14,5 +14,6 @@ if (-not [string]::IsNullOrEmpty($projects)) {
 else {
   Write-Host "Using nx affected with base: $base_ref"
   $projects = (npx nx show projects --affected --base=$base_ref --with-target=container-build --json | ConvertFrom-Json)
+  $projects 
 }
 "projects=$($projects -join ',')" | Out-File -FilePath $env:GITHUB_OUTPUT -Encoding utf8 -Append
