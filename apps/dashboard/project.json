@@ -1,0 +1,18 @@
+{
+  "name": "dashboard",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "apps/dashboard/src",
+  "projectType": "application",
+  "targets": {
+    "container": {
+      "executor": "@nx-tools/nx-container:build",
+      "dependsOn": ["build"],
+      "options": {
+        "context": ".",
+        "file": "apps/dashboard/dockerfile",
+        "tags": ["dashboard:latest"]
+      }
+    }
+  },
+  "tags": []
+}

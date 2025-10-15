@@ -1,6 +1,7 @@
 {
   "name": "workflows",
   "version": "0.0.0",
+  "type": "module",
   "license": "MIT",
   "scripts": {
     "build": "nx build",
@@ -9,6 +10,8 @@
   "private": true,
   "devDependencies": {
     "@eslint/js": "^9.8.0",
+    "@nx-dotnet/core": "^3.0.2",
+    "@nx-tools/nx-container": "^6.8.2",
     "@nx/devkit": "21.6.1",
     "@nx/eslint": "21.6.1",
     "@nx/eslint-plugin": "21.6.1",
@@ -43,7 +46,7 @@
     "tslib": "^2.3.0",
     "typescript": "~5.9.2",
     "typescript-eslint": "^8.40.0",
-    "vite": "^5.0.0",
+    "vite": "^7.0.0",
     "vitest": "^3.0.0"
   },
   "workspaces": [

@@ -7,7 +7,7 @@ import { Route, Routes, Link } from 'react-router-dom';
 export function App() {
   return (
     <div>
-      <NxWelcome title="dashboard"/>
+      <NxWelcome title="client"/>
     
     {/* START: routes */}
     {/* These routes and navigation have been generated for you */}
@@ -32,12 +32,6 @@ export function App() {
         path="/page-2"
         element={
           <div><Link to="/">Click here to go back to root page.</Link></div>
-        }
-      />
-      <Route
-        path="/"
-        element={
-          <div><Link to="/">Click here to go pretty much nowhere.</Link></div>
         }
       />
     </Routes>

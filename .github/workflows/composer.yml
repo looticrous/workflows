@@ -22,44 +22,16 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Set Version
-        id: set_version
-        uses: ./.github/actions/set-version
-        with:
-          event_name: ${{ github.event_name }}
-          deployment_tag: ${{ github.event.inputs.deployment_tag }}
-          ref_name: ${{ github.ref_name }}
-          run_number: ${{ github.run_number }}
-
-      - name: Print Version
-        shell: pwsh
+      - name: Set PR Branch Info
+        id: pr_branch
+        if: ${{ github.event_name == 'pull_request' }}
         run: |
-          write-host "Version: ${{ steps.set_version.outputs.version }}"
-
-      - name: Set Target Environments
-        id: set_environments
-        uses: ./.github/actions/set-target-environment
-        with:
-          event_name: ${{ github.event_name }}
-          target_environments: ${{ github.event.inputs.target_environments }}
-      
-      - name: Print Target Environments
-        shell: pwsh
-        run: |
-          write-host "Target Environments: ${{ steps.set_environments.outputs.target_environments }}"
-
-      - name: Get Builds
-        id: get_builds
-        uses: ./.github/actions/nx-get-builds
-        with:
-          projects: ""
-          base_ref: "main"
-          node_version: "21"
-
-      - name: Print Builds
-        shell: pwsh
-        run: |
-          write-host "Builds: ${{ steps.get_builds.outputs.builds }}"
+          BASE_REF="origin/${{ github.event.pull_request.base.ref }}"
+          HEAD_REF="origin/${{ github.event.pull_request.head.ref }}"
+          echo "Base ref: $BASE_REF"
+          echo "Head ref: $HEAD_REF"
+          echo "base_ref=$BASE_REF" >> $GITHUB_OUTPUT
+          echo "head_ref=$HEAD_REF" >> $GITHUB_OUTPUT
 
 
 
