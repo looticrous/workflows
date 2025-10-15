@@ -7,10 +7,10 @@ $deserialized = $serialized_parameter1 | ConvertFrom-Json
 $param1 = $deserialized.param1
 $param2 = $deserialized.param2
 $param3 = $deserialized.param3
-Write-Host "Hi there! I'm the WIP script. I work in progress."
+Write-Host "Hi there! I'm the WIP script. I work in progress. And just look at me go!"
 Write-Host "These are my parameters:" 
 Write-Host "param1: $param1"
 Write-Host "param2: $param2"
 Write-Host "param3: $param3"
 # return results as serialized json
-Write-Output @($param1, $param2, $param3) | ConvertTo-Json -Compress
+Write-Output @($param1, $param2, $param3) | ConvertTo-Json -Compression
