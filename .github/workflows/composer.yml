@@ -24,8 +24,17 @@ jobs:
 
       - name: Set PR Branch Info
         id: pr_branch
-        if: ${{ github.event_name == 'pull_request' }}
         run: |
+          # if not a PR, set base to 'origin/main~1' and head to 'origin/main'
+          if [ "${{ github.event_name }}" != "pull_request" ]; then
+            BASE_REF="origin/main~1"
+            HEAD_REF="origin/main"
+            echo "Not a PR event. Setting base to $BASE_REF and head to $HEAD_REF"
+            echo "base_ref=$BASE_REF" >> $GITHUB_OUTPUT
+            echo "head_ref=$HEAD_REF" >> $GITHUB_OUTPUT
+            exit 0
+          fi
+          # for PRs, set base and head accordingly
           BASE_REF="origin/${{ github.event.pull_request.base.ref }}"
           HEAD_REF="origin/${{ github.event.pull_request.head.ref }}"
           echo "Base ref: $BASE_REF"
